@@ -1,0 +1,6 @@
+__pycache__/
+piper_tts/
+venv/
+*.wav
+requirements.txt
+config.py
