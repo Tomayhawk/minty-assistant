@@ -133,6 +133,39 @@ def execute_action(intent_data):
             {'role': 'user', 'content': target}
         ])
         speak(response['message']['content'])
+    
+    # --- SYSTEM POWER (With Confirmation) ---
+    elif action == "system_power":
+        if intent_data.get("confirmed"):
+            if "re" in target:
+                speak("Rebooting system now.")
+                subprocess.run(["systemctl", "reboot"])
+                return "QUIT"
+            elif "shut" in target or "off" in target:
+                speak("Shutting down system.")
+                subprocess.run(["systemctl", "poweroff"])
+                return "QUIT"
+        else:
+            speak(f"Are you sure you want to {target} the computer?")
+            return "WAITING_FOR_CONFIRMATION"
+
+    # --- BLUETOOTH CONNECT ---
+    elif action == "bluetooth":
+        device_mac = None
+        for name, mac in config.BLUETOOTH_DEVICES.items():
+            if name in target:
+                device_mac = mac
+                break
+        
+        if device_mac:
+            speak(f"Connecting to {target}...")
+            subprocess.Popen(
+                ["bluetoothctl", "connect", device_mac],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL
+            )
+        else:
+            speak(f"I don't have a MAC address saved for {target}.")
 
     elif action == "clarification":
         speak(clarification)

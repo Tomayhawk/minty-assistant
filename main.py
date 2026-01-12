@@ -137,6 +137,16 @@ try:
                     elif result == "RESTART":
                         print("Restarting...")
                         os.execv(sys.executable, ['python'] + sys.argv)
+                    
+                    elif result == "WAITING_FOR_CONFIRMATION":
+                        context["pending_action"] = {
+                            "action": intent_data.get("action"), 
+                            "target": intent_data.get("target"),
+                            "confirmed": True
+                        }
+
+                        skip_wake_word = True 
+                        listen_timeout = 8
                         
                     # Play Success Sound (only if transaction finished)
                     if result == "DONE" or result == "WAITING_FOR_CONFIRMATION":

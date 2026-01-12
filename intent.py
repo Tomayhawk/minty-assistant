@@ -19,6 +19,8 @@ def analyze_intent(user_text, context=None):
     - "snap": Move Firefox/YouTube windows (Target = position)
     - "audio_mode": Switch headphone quality (Target = "music" or "call")
     - "schedule": Add calendar events (Target = "new_event")
+    - "system_power": Shutdown or Restart. Target = "shutdown" or "restart".
+    - "bluetooth": Connect to device. Target = device name (e.g., "airpods").
     - "cancel": "nevermind", "cancel" (Target = "cancel")
     - "wait": "wait a sec", "hold on" (Target = "wait")
     - "quit": Stop or exit.
@@ -37,7 +39,8 @@ def analyze_intent(user_text, context=None):
         if isinstance(pending, dict):
             system_instruction += f"""
             CONTEXT: The user previously asked to {pending['action']} {pending['target']}.
-            If confirmed, output the pending action. If denied, output action "unknown".
+            If the user says 'yes', 'do it', or confirms, output the pending action exactly.
+            If they say 'no', 'cancel', output action: "cancel".
             """
 
     try:
