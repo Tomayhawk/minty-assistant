@@ -14,6 +14,9 @@ from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from kasa import Discover, Credentials
+import psutil
+import pyperclip
+import datetime
 
 import config
 import intent
@@ -85,6 +88,56 @@ def execute_action(intent_data):
         elif "mute" in target:
             subprocess.run(["amixer", "-D", "pulse", "sset", "Master", "toggle"])
             speak("Muting audio.")
+    # --- SYSTEM STATS ---
+    elif action == "system_stats":
+        if "cpu" in target:
+            usage = psutil.cpu_percent(interval=0.5)
+            speak(f"CPU usage is at {usage} percent.")
+        elif "ram" in target or "memory" in target:
+            mem = psutil.virtual_memory()
+            used_gb = round(mem.used / (1024**3), 1)
+            total_gb = round(mem.total / (1024**3), 1)
+            speak(f"You are using {used_gb} gigabytes out of {total_gb}.")
+        elif "battery" in target:
+            battery = psutil.sensors_battery()
+            if battery:
+                status = "charging" if battery.power_plugged else "discharging"
+                speak(f"Battery is at {battery.percent} percent and {status}.")
+            else:
+                speak("I cannot detect a battery.")
+        elif "disk" in target or "storage" in target:
+            disk = psutil.disk_usage('/')
+            free_gb = round(disk.free / (1024**3), 1)
+            speak(f"You have {free_gb} gigabytes of free storage remaining.")
+
+    # --- PRODUCTIVITY ---
+    elif action == "screenshot":
+        # Saves to Pictures folder with timestamp
+        filename = datetime.datetime.now().strftime("Screenshot_%Y-%m-%d_%H-%M-%S.png")
+        save_path = os.path.expanduser(f"~/Pictures/{filename}")
+        speak("Taking screenshot.")
+        subprocess.run(["scrot", save_path])
+        
+    elif action == "note":
+        # Appends to a text file in Documents
+        note_path = os.path.expanduser("~/Documents/minty_notes.txt")
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+        with open(note_path, "a") as f:
+            f.write(f"[{timestamp}] {target}\n")
+        speak("Note saved.")
+
+    elif action == "clipboard":
+        content = pyperclip.paste()
+        if content:
+            # Truncate if too long
+            preview = content[:200] + "..." if len(content) > 200 else content
+            speak(f"Clipboard says: {preview}")
+        else:
+            speak("The clipboard is empty.")
+
+    elif action == "date":
+        today = datetime.datetime.now().strftime("%A, %B %d, %Y")
+        speak(f"Today is {today}.")
 
     elif action == "audio_mode":
         card = config.HEADSET_CARD_ID

@@ -26,6 +26,11 @@ def analyze_intent(user_text, context=None):
     - "quit": Stop or exit.
     - "restart": Restart the assistant.
     - "unknown": If unsure.
+    - "system_stats": Ask about CPU, RAM, Battery, or Disk. Target = "cpu", "ram", "battery", "disk".
+    - "screenshot": Take a picture of the screen. Target = "screen".
+    - "note": Save a text note. Target = content of the note.
+    - "clipboard": Read or check clipboard. Target = "read".
+    - "date": Ask for the date.
 
     CRITICAL RULE for "chat": 
     If the input is a question like "Who are you?", target MUST be the user's EXACT input.
