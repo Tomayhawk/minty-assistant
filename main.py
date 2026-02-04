@@ -117,27 +117,19 @@ try:
                     if result == "EXTENDED_LISTEN":
                         skip_wake_word = True
                         listen_timeout = 20    # "Wait a sec"
-                        
                     elif result == "WAITING_FOR_CALENDAR":
                         context["pending_action"] = "calendar_flow"
                         skip_wake_word = True
                         listen_timeout = 10    # Give time to answer "What time?"
-                    
-                    elif result == "WAITING_FOR_CONFIRMATION":
-                        context["pending_action"] = {"action": "launch", "target": intent_data.get("target")}
-                    
                     elif result == "DONE":
                         context["pending_action"] = None
                         context["event_data"] = {} 
-                        
                     elif result == "QUIT":
                         print("User requested quit.")
                         sys.exit(0)
-                        
                     elif result == "RESTART":
                         print("Restarting...")
                         os.execv(sys.executable, ['python'] + sys.argv)
-                    
                     elif result == "WAITING_FOR_CONFIRMATION":
                         context["pending_action"] = {
                             "action": intent_data.get("action"), 
